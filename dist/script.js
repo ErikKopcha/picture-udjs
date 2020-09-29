@@ -954,8 +954,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var modals = function modals() {
+  var btnPressed = false;
+
   function bindModal(triggerSelector, modalSecector, closeSelector) {
-    var closeClickOverlay = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+    var destroy = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     var trigger = document.querySelectorAll(triggerSelector),
         modal = document.querySelector(modalSecector),
         close = document.querySelector(closeSelector),
@@ -966,8 +968,15 @@ var modals = function modals() {
           e.preventDefault();
         }
 
+        btnPressed = true;
+
+        if (destroy) {
+          el.remove();
+        }
+
         windows.forEach(function (window) {
           window.style.display = 'none';
+          window.classList.add('animated', 'fadeIn');
         });
         modal.style.display = "block";
         document.body.classList.add('modal-open');
@@ -985,7 +994,7 @@ var modals = function modals() {
       document.body.classList.remove('modal-open');
     });
     modal.addEventListener('click', function (e) {
-      if (e.target === modal && closeClickOverlay === true) {
+      if (e.target === modal) {
         windows.forEach(function (window) {
           window.style.display = 'none';
         });
@@ -1011,8 +1020,18 @@ var modals = function modals() {
     }, time);
   }
 
+  function openByScroll(selector) {
+    window.addEventListener('scroll', function () {
+      if (!btnPressed && window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+        document.querySelector(selector).click();
+      }
+    });
+  }
+
   bindModal('.button-design', '.popup-design', '.popup-design .popup-close');
   bindModal('.button-consultation', '.popup-consultation', '.popup-consultation .popup-close');
+  bindModal('.fixed-gift', '.popup-gift', '.popup-gift .popup-close', true);
+  openByScroll('.fixed-gift');
   showModalByTime('.popup-consultation', 60000);
 };
 
